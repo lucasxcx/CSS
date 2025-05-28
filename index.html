@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./smacss/base.css">
+    <link rel="stylesheet" href="./smacss/layout.css">
+    <link rel="stylesheet" href="./smacss/module.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 cllass="title">Nome do Site</h1>
+            <nav>
+                <ul>
+                    <li>
+                        <a href="">Home</a>
+                    </li>
+                    <li>
+                        <a href="">Produtos</a>
+                    </li>
+                    <li>
+                        <a href="">Contato</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <div class="container">
+        <div class="accordion is-open">
+            <header class="accordion-header">
+                Nome do arccodion
+            </header>
+            <p class="accordion-content">
+                Conteudo
+            </p>
+        </div>
+    </div>
+    <footer>
+        <div class="container">
+            <div class="mensagem mensagem-is-error">
+                <h5 class="mensagem-titulo">Atenção</h5>
+                <p class="mensagem-conteudo">
+                    Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ipsa impedit non vero ullam amet similique, eos consectetur corrupti tempore ad alias sint consequatur magni, temporibus nam sapiente perspiciatis necessitatibus aperiam!
+                </p>
+            </div>
+        </div>
+    </footer>
+    <script>
+       const accordions =  document.querySelectorAll('.accordion-header')
+       for (let i = 0; i<accordions.length; i++) {
+        accordions[i].addEventListener('click', function(evento){
+            evento.target.parentNode.classList.toggle('is-open');
+        })
+       }
+    </script>
+</body>
+</html>
