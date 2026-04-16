@@ -35,7 +35,7 @@ function PhotoCapture({ onCapture }) {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
-    } catch (_error) {
+    } catch {
       setCameraError("Não foi possível acessar a câmera neste dispositivo.");
     } finally {
       setIsStartingCamera(false);

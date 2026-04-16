@@ -19,6 +19,7 @@ app.get("/health", (_request, response) => {
 });
 
 app.use(deliveryRoutes);
+app.use("/api", deliveryRoutes);
 
 app.use((error, _request, response, _next) => {
   const statusCode = error.statusCode ?? 500;

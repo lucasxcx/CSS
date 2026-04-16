@@ -9,7 +9,7 @@ export const extractDeliveryId = (value) => {
     try {
       const parsedUrl = new URL(trimmed, window.location.origin);
       return parsedUrl.searchParams.get("delivery_id");
-    } catch (_error) {
+    } catch {
       return trimmed.split("delivery_id=")[1]?.split("&")[0] ?? null;
     }
   }

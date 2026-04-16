@@ -11,6 +11,6 @@ npm run dev
 
 ## Endpoints
 
-- `POST /deliveries/confirm`
-- `GET /deliveries`
+- `POST /deliveries/confirm` (também disponível em `/api/deliveries/confirm`)
+- `GET /deliveries` (também disponível em `/api/deliveries`)
 - `GET /health`

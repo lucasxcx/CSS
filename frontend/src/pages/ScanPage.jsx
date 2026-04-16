@@ -1,5 +1,5 @@
 import { Html5Qrcode } from "html5-qrcode";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FeedbackBanner from "../components/FeedbackBanner";
 import { extractDeliveryId } from "../utils/extractDeliveryId";
@@ -13,7 +13,7 @@ function ScanPage() {
   const [manualCode, setManualCode] = useState("");
   const [isStartingCamera, setIsStartingCamera] = useState(false);
 
-  const goToConfirmPage = (rawValue) => {
+  const goToConfirmPage = useCallback((rawValue) => {
     const deliveryId = extractDeliveryId(rawValue);
 
     if (!deliveryId) {
@@ -22,18 +22,18 @@ function ScanPage() {
     }
 
     navigate(`/confirm/${encodeURIComponent(deliveryId)}`);
-  };
+  }, [navigate]);
 
-  const stopScanner = async () => {
+  const stopScanner = useCallback(async () => {
     if (!scannerRef.current?.isScanning) {
       return;
     }
 
     await scannerRef.current.stop();
     await scannerRef.current.clear();
-  };
+  }, []);
 
-  const startScanner = async () => {
+  const startScanner = useCallback(async () => {
     setErrorMessage("");
     setIsStartingCamera(true);
 
@@ -53,14 +53,14 @@ function ScanPage() {
         },
         () => {}
       );
-    } catch (_error) {
+    } catch {
       setErrorMessage(
         "Não foi possível iniciar a leitura por câmera. Verifique a permissão do navegador."
       );
     } finally {
       setIsStartingCamera(false);
     }
-  };
+  }, [goToConfirmPage, stopScanner]);
 
   useEffect(() => {
     startScanner();
@@ -68,7 +68,7 @@ function ScanPage() {
     return () => {
       stopScanner().catch(() => {});
     };
-  }, []);
+  }, [startScanner, stopScanner]);
 
   const handleManualSubmit = (event) => {
     event.preventDefault();
