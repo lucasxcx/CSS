@@ -14,3 +14,12 @@ npm run dev
 - `POST /deliveries/confirm` (também disponível em `/api/deliveries/confirm`)
 - `GET /deliveries` (também disponível em `/api/deliveries`)
 - `GET /health`
+
+## Geolocalização
+
+O endpoint de confirmação aceita geolocalização opcional capturada no momento do scan:
+
+- `scan_latitude`
+- `scan_longitude`
+- `scan_accuracy`
+- `scan_geolocated_at`

@@ -8,6 +8,19 @@ import { confirmDelivery } from "../services/api";
 function ConfirmPage() {
   const { deliveryId } = useParams();
   const resolvedDeliveryId = useMemo(() => decodeURIComponent(deliveryId || ""), [deliveryId]);
+  const scannedLocation = useMemo(() => {
+    const storedValue = sessionStorage.getItem(`scan_location:${resolvedDeliveryId}`);
+
+    if (!storedValue) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(storedValue);
+    } catch {
+      return null;
+    }
+  }, [resolvedDeliveryId]);
   const [formValues, setFormValues] = useState({
     nomeRecebedor: "",
     documento: "",
@@ -47,6 +60,10 @@ function ConfirmPage() {
         observacoes: formValues.observacoes,
         assinatura: signature,
         foto: photo,
+        scan_latitude: scannedLocation?.latitude ?? null,
+        scan_longitude: scannedLocation?.longitude ?? null,
+        scan_accuracy: scannedLocation?.accuracy ?? null,
+        scan_geolocated_at: scannedLocation?.geolocatedAt ?? null,
       });
 
       setFeedback({
@@ -71,6 +88,16 @@ function ConfirmPage() {
       <div className="rounded-xl bg-slate-100 p-4">
         <p className="text-xs font-semibold uppercase text-slate-500">Delivery ID</p>
         <p className="text-lg font-bold text-slate-900">{resolvedDeliveryId}</p>
+        {scannedLocation ? (
+          <p className="mt-2 text-xs text-slate-600">
+            Localização do escaneamento: {scannedLocation.latitude.toFixed(6)},{" "}
+            {scannedLocation.longitude.toFixed(6)}
+          </p>
+        ) : (
+          <p className="mt-2 text-xs text-amber-700">
+            Escaneamento sem geolocalização (permissão negada ou indisponível).
+          </p>
+        )}
       </div>
 
       <form className="space-y-4" onSubmit={handleSubmit}>

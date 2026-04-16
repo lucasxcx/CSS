@@ -1,5 +1,14 @@
 const { all, get, run } = require("../config/database");
 
+const ensureColumn = async (columnName, sqlDefinition) => {
+  const columns = await all("PRAGMA table_info(deliveries)");
+  const hasColumn = columns.some((column) => column.name === columnName);
+
+  if (!hasColumn) {
+    await run(`ALTER TABLE deliveries ADD COLUMN ${columnName} ${sqlDefinition}`);
+  }
+};
+
 const createTable = async () => {
   await run(`
     CREATE TABLE IF NOT EXISTS deliveries (
@@ -10,11 +19,21 @@ const createTable = async () => {
       observacoes TEXT,
       assinatura TEXT,
       foto TEXT NOT NULL,
+      scan_latitude REAL,
+      scan_longitude REAL,
+      scan_accuracy REAL,
+      scan_geolocated_at TEXT,
       status TEXT NOT NULL DEFAULT 'pendente',
       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Migração leve para bancos já existentes sem as novas colunas.
+  await ensureColumn("scan_latitude", "REAL");
+  await ensureColumn("scan_longitude", "REAL");
+  await ensureColumn("scan_accuracy", "REAL");
+  await ensureColumn("scan_geolocated_at", "TEXT");
 };
 
 const confirmDelivery = async ({
@@ -24,6 +43,10 @@ const confirmDelivery = async ({
   observacoes,
   assinatura,
   foto,
+  scan_latitude,
+  scan_longitude,
+  scan_accuracy,
+  scan_geolocated_at,
 }) => {
   await run(
     `
@@ -34,14 +57,22 @@ const confirmDelivery = async ({
       observacoes,
       assinatura,
       foto,
+      scan_latitude,
+      scan_longitude,
+      scan_accuracy,
+      scan_geolocated_at,
       status
-    ) VALUES (?, ?, ?, ?, ?, ?, 'concluido')
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'concluido')
     ON CONFLICT(delivery_id) DO UPDATE SET
       nome_recebedor = excluded.nome_recebedor,
       documento = excluded.documento,
       observacoes = excluded.observacoes,
       assinatura = excluded.assinatura,
       foto = excluded.foto,
+      scan_latitude = excluded.scan_latitude,
+      scan_longitude = excluded.scan_longitude,
+      scan_accuracy = excluded.scan_accuracy,
+      scan_geolocated_at = excluded.scan_geolocated_at,
       status = 'concluido',
       updated_at = CURRENT_TIMESTAMP
   `,
@@ -52,6 +83,10 @@ const confirmDelivery = async ({
       observacoes,
       assinatura,
       foto,
+      scan_latitude,
+      scan_longitude,
+      scan_accuracy,
+      scan_geolocated_at,
     ]
   );
 
@@ -65,6 +100,10 @@ const confirmDelivery = async ({
       observacoes,
       assinatura,
       foto,
+      scan_latitude,
+      scan_longitude,
+      scan_accuracy,
+      scan_geolocated_at,
       status,
       created_at
     FROM deliveries
@@ -85,6 +124,10 @@ const getDeliveries = () =>
       observacoes,
       assinatura,
       foto,
+      scan_latitude,
+      scan_longitude,
+      scan_accuracy,
+      scan_geolocated_at,
       status,
       created_at
     FROM deliveries

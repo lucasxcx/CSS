@@ -3,6 +3,23 @@ const deliveryModel = require("../models/deliveryModel");
 const { saveBase64Image } = require("../utils/base64Image");
 
 const REQUIRED_FIELDS = ["delivery_id", "nome_recebedor", "documento", "foto"];
+const parseCoordinate = (value) => {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const parseAccuracy = (value) => {
+  const parsed = parseCoordinate(value);
+  if (parsed === null) {
+    return null;
+  }
+
+  return parsed >= 0 ? parsed : null;
+};
 
 const validatePayload = (payload) => {
   const missingFields = REQUIRED_FIELDS.filter((field) => !payload[field]);
@@ -39,6 +56,10 @@ const confirmDelivery = async (payload) => {
     observacoes: payload.observacoes?.trim() ?? "",
     assinatura: payload.assinatura ?? null,
     foto: `/uploads/${imageResult.fileName}`,
+    scan_latitude: parseCoordinate(payload.scan_latitude),
+    scan_longitude: parseCoordinate(payload.scan_longitude),
+    scan_accuracy: parseAccuracy(payload.scan_accuracy),
+    scan_geolocated_at: payload.scan_geolocated_at ?? null,
   });
 
   return confirmedDelivery;

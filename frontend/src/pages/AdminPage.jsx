@@ -69,6 +69,12 @@ function AdminPage() {
               <p className="sm:col-span-2">
                 <strong>Observações:</strong> {delivery.observacoes || "-"}
               </p>
+              <p className="sm:col-span-2">
+                <strong>Geolocalização do escaneamento:</strong>{" "}
+                {delivery.scan_latitude !== null && delivery.scan_longitude !== null
+                  ? `${Number(delivery.scan_latitude).toFixed(6)}, ${Number(delivery.scan_longitude).toFixed(6)}`
+                  : "Não informada"}
+              </p>
               <p>
                 <strong>Data:</strong>{" "}
                 {new Date(delivery.created_at).toLocaleString("pt-BR")}

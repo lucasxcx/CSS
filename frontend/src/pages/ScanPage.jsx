@@ -16,8 +16,48 @@ function ScanPage() {
   const [isScanning, setIsScanning] = useState(false);
   const [cameras, setCameras] = useState([]);
   const [selectedCameraId, setSelectedCameraId] = useState("");
+  const [geoStatus, setGeoStatus] = useState("");
 
-  const goToConfirmPage = useCallback((rawValue) => {
+  const getCurrentLocation = useCallback(
+    () =>
+      new Promise((resolve) => {
+        if (!navigator.geolocation) {
+          setGeoStatus("Geolocalização não suportada neste dispositivo.");
+          resolve(null);
+          return;
+        }
+
+        setGeoStatus("Capturando geolocalização...");
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            resolve({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy,
+            });
+          },
+          (error) => {
+            if (error?.code === 1) {
+              setGeoStatus("Permissão de localização negada.");
+            } else if (error?.code === 3) {
+              setGeoStatus("Tempo de localização esgotado. Continuando sem coordenadas.");
+            } else {
+              setGeoStatus("Não foi possível obter localização. Continuando sem coordenadas.");
+            }
+            resolve(null);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 8000,
+            maximumAge: 0,
+          }
+        );
+      }),
+    []
+  );
+
+  const goToConfirmPage = useCallback(async (rawValue) => {
     const deliveryId = extractDeliveryId(rawValue);
 
     if (!deliveryId) {
@@ -25,8 +65,30 @@ function ScanPage() {
       return;
     }
 
-    navigate(`/confirm/${encodeURIComponent(deliveryId)}`);
-  }, [navigate]);
+    const location = await getCurrentLocation();
+    const locationPayload = location
+      ? {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          accuracy: location.accuracy ?? null,
+          capturedAt: new Date().toISOString(),
+        }
+      : null;
+
+    if (locationPayload) {
+      setGeoStatus("Geolocalização capturada no escaneamento.");
+      sessionStorage.setItem(
+        `scan_location:${deliveryId}`,
+        JSON.stringify(locationPayload)
+      );
+    }
+
+    navigate(`/confirm/${encodeURIComponent(deliveryId)}`, {
+      state: {
+        scannedLocation: locationPayload,
+      },
+    });
+  }, [getCurrentLocation, navigate]);
 
   const stopScanner = useCallback(async () => {
     if (!scannerRef.current) {
@@ -114,7 +176,7 @@ function ScanPage() {
         { fps: 10, qrbox: { width: 220, height: 220 } },
         async (decodedText) => {
           await stopScanner();
-          goToConfirmPage(decodedText);
+          await goToConfirmPage(decodedText);
         },
         () => {}
       );
@@ -137,7 +199,7 @@ function ScanPage() {
 
   const handleManualSubmit = (event) => {
     event.preventDefault();
-    goToConfirmPage(manualCode);
+    goToConfirmPage(manualCode).catch(() => {});
   };
 
   return (
@@ -197,6 +259,7 @@ function ScanPage() {
               : ""
         }
       />
+      <FeedbackBanner type="info" message={geoStatus} />
 
       <form className="space-y-3 rounded-xl border border-slate-200 p-4" onSubmit={handleManualSubmit}>
         <label className="text-sm font-semibold text-slate-700" htmlFor="manual-code">

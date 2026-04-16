@@ -43,6 +43,7 @@ frontend/
   - foto da entrega (câmera)
 - Confirmação da entrega via `POST /deliveries/confirm`
 - Persistência no SQLite e status como `concluido`
+- Captura de geolocalização no momento do escaneamento (latitude/longitude)
 - Painel administrativo para listagem (`GET /deliveries`)
 - Gerador de QR de exemplo para testes
 - Validações de campos obrigatórios
@@ -54,6 +55,12 @@ frontend/
 - `POST /deliveries/confirm`
 - `GET /deliveries`
 - `GET /health`
+
+Campos adicionais de localização:
+- `scan_latitude`
+- `scan_longitude`
+- `scan_accuracy`
+- `scan_geolocated_at`
 
 ## Como rodar
 
