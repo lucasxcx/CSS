@@ -1,59 +1,177 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Portal de Controle de Pedidos e Entregas</title>
     <link rel="stylesheet" href="./smacss/base.css">
-    <link rel="stylesheet" href="./smacss/layout.css">
-    <link rel="stylesheet" href="./smacss/module.css">
+    <link rel="stylesheet" href="./smacss/portal.css">
 </head>
 <body>
-    <header>
+    <header class="app-header">
         <div class="container">
-            <h1 cllass="title">Nome do Site</h1>
-            <nav>
-                <ul>
-                    <li>
-                        <a href="">Home</a>
-                    </li>
-                    <li>
-                        <a href="">Produtos</a>
-                    </li>
-                    <li>
-                        <a href="">Contato</a>
-                    </li>
-                </ul>
-            </nav>
+            <div>
+                <p class="app-overline">Logística e Operações</p>
+                <h1 class="app-title">Portal de Controle de Pedidos e Entregas</h1>
+            </div>
+            <p class="last-sync" id="last-sync">Sincronizando dados...</p>
         </div>
     </header>
-    <div class="container">
-        <div class="accordion is-open">
-            <header class="accordion-header">
-                Nome do arccodion
-            </header>
-            <p class="accordion-content">
-                Conteudo
-            </p>
-        </div>
-    </div>
-    <footer>
-        <div class="container">
-            <div class="mensagem mensagem-is-error">
-                <h5 class="mensagem-titulo">Atenção</h5>
-                <p class="mensagem-conteudo">
-                    Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ipsa impedit non vero ullam amet similique, eos consectetur corrupti tempore ad alias sint consequatur magni, temporibus nam sapiente perspiciatis necessitatibus aperiam!
-                </p>
+
+    <main class="container app-main">
+        <section class="panel">
+            <h2>Visão Geral</h2>
+            <div class="kpi-grid" id="kpi-grid">
+                <article class="kpi-card">
+                    <p>Total de pedidos</p>
+                    <strong id="kpi-total">0</strong>
+                </article>
+                <article class="kpi-card">
+                    <p>Pendentes</p>
+                    <strong id="kpi-pendentes">0</strong>
+                </article>
+                <article class="kpi-card">
+                    <p>Em rota</p>
+                    <strong id="kpi-em-rota">0</strong>
+                </article>
+                <article class="kpi-card">
+                    <p>Entregues</p>
+                    <strong id="kpi-entregues">0</strong>
+                </article>
+                <article class="kpi-card kpi-warning">
+                    <p>Atrasados</p>
+                    <strong id="kpi-atrasados">0</strong>
+                </article>
+                <article class="kpi-card">
+                    <p>Faturamento previsto</p>
+                    <strong id="kpi-faturamento">R$ 0,00</strong>
+                </article>
             </div>
-        </div>
-    </footer>
-    <script>
-       const accordions =  document.querySelectorAll('.accordion-header')
-       for (let i = 0; i<accordions.length; i++) {
-        accordions[i].addEventListener('click', function(evento){
-            evento.target.parentNode.classList.toggle('is-open');
-        })
-       }
-    </script>
+        </section>
+
+        <section class="panel">
+            <h2>Novo Pedido</h2>
+            <form id="order-form" class="order-form">
+                <div class="form-grid">
+                    <label>
+                        Cliente
+                        <input type="text" name="cliente" required placeholder="Nome do cliente">
+                    </label>
+                    <label>
+                        Telefone
+                        <input type="tel" name="telefone" required placeholder="(00) 00000-0000">
+                    </label>
+                    <label>
+                        Endereço de entrega
+                        <input type="text" name="endereco" required placeholder="Rua, número e bairro">
+                    </label>
+                    <label>
+                        Produto
+                        <input type="text" name="produto" required placeholder="Nome do produto">
+                    </label>
+                    <label>
+                        Quantidade
+                        <input type="number" name="quantidade" min="1" value="1" required>
+                    </label>
+                    <label>
+                        Valor (R$)
+                        <input type="number" name="valor" min="0" step="0.01" required>
+                    </label>
+                    <label>
+                        Prazo de entrega
+                        <input type="date" name="prazoEntrega" required>
+                    </label>
+                    <label>
+                        Entregador
+                        <input type="text" name="entregador" required placeholder="Nome do entregador">
+                    </label>
+                    <label>
+                        Prioridade
+                        <select name="prioridade" required>
+                            <option value="normal">Normal</option>
+                            <option value="alta">Alta</option>
+                            <option value="urgente">Urgente</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button type="submit">Registrar pedido</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="panel">
+            <h2>Controle de Pedidos</h2>
+            <div class="filters">
+                <label>
+                    Buscar
+                    <input type="search" id="search-input" placeholder="Cliente, produto ou ID do pedido">
+                </label>
+                <label>
+                    Status
+                    <select id="status-filter">
+                        <option value="todos">Todos</option>
+                        <option value="novo">Novo</option>
+                        <option value="separacao">Em separação</option>
+                        <option value="em_rota">Em rota</option>
+                        <option value="entregue">Entregue</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                </label>
+                <label>
+                    Prioridade
+                    <select id="priority-filter">
+                        <option value="todas">Todas</option>
+                        <option value="normal">Normal</option>
+                        <option value="alta">Alta</option>
+                        <option value="urgente">Urgente</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Produto</th>
+                            <th>Prazo</th>
+                            <th>Entregador</th>
+                            <th>Status</th>
+                            <th>Prioridade</th>
+                            <th>Valor</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel delivery-panel">
+            <h2>Painel de Entregas</h2>
+            <div class="delivery-grid">
+                <article>
+                    <h3>Entregas em rota</h3>
+                    <ul id="delivery-in-route"></ul>
+                </article>
+                <article>
+                    <h3>Atrasadas</h3>
+                    <ul id="delivery-overdue"></ul>
+                </article>
+                <article>
+                    <h3>Concluídas hoje</h3>
+                    <ul id="delivery-completed"></ul>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <template id="empty-state-template">
+        <li class="empty-state">Sem registros para exibir.</li>
+    </template>
+
+    <script src="./app.js"></script>
 </body>
 </html>
