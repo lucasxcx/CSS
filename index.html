@@ -3,52 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal de Controle de Pedidos e Entregas</title>
+    <title>Portal Básico de Pedidos e Entregas</title>
     <link rel="stylesheet" href="./smacss/base.css">
     <link rel="stylesheet" href="./smacss/portal.css">
 </head>
 <body>
     <header class="app-header">
         <div class="container">
-            <div>
-                <p class="app-overline">Logística e Operações</p>
-                <h1 class="app-title">Portal de Controle de Pedidos e Entregas</h1>
-            </div>
-            <p class="last-sync" id="last-sync">Sincronizando dados...</p>
+            <h1 class="app-title">Portal Básico de Pedidos e Entregas</h1>
+            <p class="last-sync" id="last-sync">Atualizando...</p>
         </div>
     </header>
 
     <main class="container app-main">
-        <section class="panel">
-            <h2>Visão Geral</h2>
-            <div class="kpi-grid" id="kpi-grid">
-                <article class="kpi-card">
-                    <p>Total de pedidos</p>
-                    <strong id="kpi-total">0</strong>
-                </article>
-                <article class="kpi-card">
-                    <p>Pendentes</p>
-                    <strong id="kpi-pendentes">0</strong>
-                </article>
-                <article class="kpi-card">
-                    <p>Em rota</p>
-                    <strong id="kpi-em-rota">0</strong>
-                </article>
-                <article class="kpi-card">
-                    <p>Entregues</p>
-                    <strong id="kpi-entregues">0</strong>
-                </article>
-                <article class="kpi-card kpi-warning">
-                    <p>Atrasados</p>
-                    <strong id="kpi-atrasados">0</strong>
-                </article>
-                <article class="kpi-card">
-                    <p>Faturamento previsto</p>
-                    <strong id="kpi-faturamento">R$ 0,00</strong>
-                </article>
-            </div>
-        </section>
-
         <section class="panel">
             <h2>Novo Pedido</h2>
             <form id="order-form" class="order-form">
@@ -58,50 +25,23 @@
                         <input type="text" name="cliente" required placeholder="Nome do cliente">
                     </label>
                     <label>
-                        Telefone
-                        <input type="tel" name="telefone" required placeholder="(00) 00000-0000">
-                    </label>
-                    <label>
-                        Endereço de entrega
-                        <input type="text" name="endereco" required placeholder="Rua, número e bairro">
-                    </label>
-                    <label>
                         Produto
-                        <input type="text" name="produto" required placeholder="Nome do produto">
-                    </label>
-                    <label>
-                        Quantidade
-                        <input type="number" name="quantidade" min="1" value="1" required>
-                    </label>
-                    <label>
-                        Valor (R$)
-                        <input type="number" name="valor" min="0" step="0.01" required>
+                        <input type="text" name="produto" required placeholder="Produto">
                     </label>
                     <label>
                         Prazo de entrega
                         <input type="date" name="prazoEntrega" required>
                     </label>
-                    <label>
-                        Entregador
-                        <input type="text" name="entregador" required placeholder="Nome do entregador">
-                    </label>
-                    <label>
-                        Prioridade
-                        <select name="prioridade" required>
-                            <option value="normal">Normal</option>
-                            <option value="alta">Alta</option>
-                            <option value="urgente">Urgente</option>
-                        </select>
-                    </label>
                 </div>
                 <div class="form-actions">
-                    <button type="submit">Registrar pedido</button>
+                    <button type="submit">Adicionar pedido</button>
                 </div>
             </form>
         </section>
 
         <section class="panel">
-            <h2>Controle de Pedidos</h2>
+            <h2>Pedidos</h2>
+            <p id="summary" class="summary">Total: 0 | Pendentes: 0 | Entregues: 0</p>
             <div class="filters">
                 <label>
                     Buscar
@@ -111,20 +51,10 @@
                     Status
                     <select id="status-filter">
                         <option value="todos">Todos</option>
-                        <option value="novo">Novo</option>
-                        <option value="separacao">Em separação</option>
+                        <option value="pendente">Pendente</option>
                         <option value="em_rota">Em rota</option>
                         <option value="entregue">Entregue</option>
                         <option value="cancelado">Cancelado</option>
-                    </select>
-                </label>
-                <label>
-                    Prioridade
-                    <select id="priority-filter">
-                        <option value="todas">Todas</option>
-                        <option value="normal">Normal</option>
-                        <option value="alta">Alta</option>
-                        <option value="urgente">Urgente</option>
                     </select>
                 </label>
             </div>
@@ -137,10 +67,7 @@
                             <th>Cliente</th>
                             <th>Produto</th>
                             <th>Prazo</th>
-                            <th>Entregador</th>
                             <th>Status</th>
-                            <th>Prioridade</th>
-                            <th>Valor</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -148,29 +75,7 @@
                 </table>
             </div>
         </section>
-
-        <section class="panel delivery-panel">
-            <h2>Painel de Entregas</h2>
-            <div class="delivery-grid">
-                <article>
-                    <h3>Entregas em rota</h3>
-                    <ul id="delivery-in-route"></ul>
-                </article>
-                <article>
-                    <h3>Atrasadas</h3>
-                    <ul id="delivery-overdue"></ul>
-                </article>
-                <article>
-                    <h3>Concluídas hoje</h3>
-                    <ul id="delivery-completed"></ul>
-                </article>
-            </div>
-        </section>
     </main>
-
-    <template id="empty-state-template">
-        <li class="empty-state">Sem registros para exibir.</li>
-    </template>
 
     <script src="./app.js"></script>
 </body>
