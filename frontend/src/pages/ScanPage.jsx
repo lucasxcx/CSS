@@ -140,7 +140,9 @@ function ScanPage() {
       setCameras(availableCameras);
 
       if (availableCameras.length === 0) {
-        setErrorMessage("Nenhuma câmera encontrada.");
+        setErrorMessage(
+          "Não foi possível listar as câmeras. Tente clicar em \"Iniciar leitura\" para abrir a câmera diretamente."
+        );
         return;
       }
 
@@ -158,10 +160,9 @@ function ScanPage() {
 
     try {
       const chosenCameraId = selectedCameraId || cameras[0]?.id;
-
-      if (!chosenCameraId) {
-        throw new Error("Selecione uma câmera para continuar.");
-      }
+      const cameraConfig = chosenCameraId
+        ? chosenCameraId
+        : { facingMode: { ideal: "environment" } };
 
       await stopScanner();
 
@@ -172,7 +173,7 @@ function ScanPage() {
       scannerRef.current = scanner;
 
       await scanner.start(
-        chosenCameraId,
+        cameraConfig,
         { fps: 10, qrbox: { width: 220, height: 220 } },
         async (decodedText) => {
           await stopScanner();
@@ -220,7 +221,7 @@ function ScanPage() {
           className="btn-primary"
           type="button"
           onClick={isScanning ? stopScanner : startScanner}
-          disabled={isStartingCamera || cameras.length === 0}
+          disabled={isStartingCamera}
         >
           {isStartingCamera ? "Iniciando..." : isScanning ? "Parar leitura" : "Iniciar leitura"}
         </button>
