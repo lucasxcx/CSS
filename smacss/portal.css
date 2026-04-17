@@ -1,0 +1,149 @@
+.container {
+    width: min(960px, 92%);
+    margin: 0 auto;
+}
+
+body {
+    background: #f4f6fb;
+    color: #1d2433;
+}
+
+.app-header {
+    background: #1f3ea8;
+    color: #ffffff;
+    padding: 18px 0;
+}
+
+.app-header > .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.app-title {
+    font-size: clamp(22px, 3vw, 30px);
+}
+
+.last-sync {
+    font-size: 13px;
+}
+
+.app-main {
+    display: grid;
+    gap: 16px;
+    padding: 22px 0 28px;
+}
+
+.panel {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid #e0e6f8;
+}
+
+.panel h2 {
+    margin-bottom: 12px;
+    font-size: 21px;
+}
+
+.summary {
+    background: #eef2ff;
+    border: 1px solid #d8e1ff;
+    color: #30458f;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.form-grid,
+.filters {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #38445f;
+}
+
+input,
+select,
+button {
+    font-size: 14px;
+    min-height: 38px;
+    border-radius: 8px;
+    border: 1px solid #c4cde8;
+    padding: 8px 10px;
+    font-family: inherit;
+}
+
+.form-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+button {
+    background: #1f3ea8;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.table-wrapper {
+    margin-top: 12px;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 680px;
+}
+
+thead th {
+    text-align: left;
+    background: #edf1ff;
+    padding: 10px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+tbody td {
+    padding: 10px;
+    border-bottom: 1px solid #ebeffa;
+}
+
+.status-select {
+    min-width: 120px;
+}
+
+.table-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-danger {
+    background: #c73030;
+}
+
+.empty {
+    color: #6f7891;
+    font-size: 14px;
+}
+
+@media (max-width: 720px) {
+    .app-header > .container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
