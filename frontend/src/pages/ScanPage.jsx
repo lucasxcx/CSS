@@ -91,17 +91,28 @@ function ScanPage() {
   }, [getCurrentLocation, navigate]);
 
   const stopScanner = useCallback(async () => {
-    if (!scannerRef.current) {
+    const scanner = scannerRef.current;
+
+    if (!scanner) {
       return;
     }
 
-    if (scannerRef.current.isScanning) {
-      await scannerRef.current.stop();
+    try {
+      if (scanner.isScanning) {
+        await scanner.stop();
+      }
+    } catch {
+      // Ignora falhas ao interromper stream durante transições de câmera/rota.
     }
 
-    await scannerRef.current.clear().catch(() => {});
-    scannerRef.current = null;
-    setIsScanning(false);
+    try {
+      await scanner.clear();
+    } catch {
+      // Ignora falhas de limpeza para manter fluxo de leitura responsivo.
+    } finally {
+      scannerRef.current = null;
+      setIsScanning(false);
+    }
   }, []);
 
   const getReadableError = useCallback((error) => {
@@ -179,7 +190,7 @@ function ScanPage() {
           await stopScanner();
           await goToConfirmPage(decodedText);
         },
-        async () => {}
+        () => Promise.resolve()
       );
 
       setIsScanning(true);
@@ -194,13 +205,13 @@ function ScanPage() {
     loadCameras();
 
     return () => {
-      stopScanner().catch(() => {});
+      void stopScanner();
     };
   }, [loadCameras, stopScanner]);
 
-  const handleManualSubmit = (event) => {
+  const handleManualSubmit = async (event) => {
     event.preventDefault();
-    goToConfirmPage(manualCode).catch(() => {});
+    await goToConfirmPage(manualCode);
   };
 
   return (
