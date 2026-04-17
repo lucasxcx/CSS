@@ -41,10 +41,13 @@ function QrGeneratorPage() {
       </div>
 
       <div className="flex flex-col items-center rounded-xl border border-slate-200 p-5">
-        <QRCodeCanvas value={qrValue} size={220} />
+        <QRCodeCanvas value={qrValue} size={320} level="H" marginSize={4} />
         <code className="mt-3 rounded-lg bg-red-50 px-3 py-1 text-xs text-red-700">
           {qrValue}
         </code>
+        <p className="mt-3 text-center text-xs text-slate-500">
+          Para facilitar a leitura no celular, deixe este QR em tela cheia e aumente o brilho do notebook.
+        </p>
       </div>
 
       <Link className="btn-primary w-full" to="/scan">

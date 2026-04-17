@@ -174,6 +174,7 @@ function ScanPage() {
       const cameraConfig = chosenCameraId
         ? chosenCameraId
         : { facingMode: { ideal: "environment" } };
+      const qrBoxSize = Math.max(220, Math.min(320, Math.floor(window.innerWidth * 0.72)));
 
       await stopScanner();
 
@@ -185,7 +186,7 @@ function ScanPage() {
 
       await scanner.start(
         cameraConfig,
-        { fps: 10, qrbox: { width: 220, height: 220 } },
+        { fps: 12, qrbox: { width: qrBoxSize, height: qrBoxSize } },
         async (decodedText) => {
           await stopScanner();
           await goToConfirmPage(decodedText);
