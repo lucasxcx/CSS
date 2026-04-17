@@ -179,7 +179,7 @@ function ScanPage() {
           await stopScanner();
           await goToConfirmPage(decodedText);
         },
-        () => {}
+        async () => {}
       );
 
       setIsScanning(true);
