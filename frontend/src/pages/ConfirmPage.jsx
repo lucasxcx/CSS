@@ -85,16 +85,16 @@ function ConfirmPage() {
 
   return (
     <section className="space-y-4 rounded-2xl bg-white p-4 shadow-sm sm:p-6">
-      <div className="rounded-xl bg-slate-100 p-4">
+      <div className="rounded-xl bg-red-50 p-4">
         <p className="text-xs font-semibold uppercase text-slate-500">Delivery ID</p>
-        <p className="text-lg font-bold text-slate-900">{resolvedDeliveryId}</p>
+        <p className="text-lg font-bold text-red-900">{resolvedDeliveryId}</p>
         {scannedLocation ? (
           <p className="mt-2 text-xs text-slate-600">
             Localização do escaneamento: {scannedLocation.latitude.toFixed(6)},{" "}
             {scannedLocation.longitude.toFixed(6)}
           </p>
         ) : (
-          <p className="mt-2 text-xs text-amber-700">
+          <p className="mt-2 text-xs text-red-700">
             Escaneamento sem geolocalização (permissão negada ou indisponível).
           </p>
         )}

@@ -4,9 +4,9 @@ function FeedbackBanner({ type = "info", message }) {
   }
 
   const stylesByType = {
-    info: "bg-blue-50 text-blue-700 border-blue-200",
-    success: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    error: "bg-red-50 text-red-700 border-red-200",
+    info: "bg-rose-50 text-rose-700 border-rose-200",
+    success: "bg-red-50 text-red-700 border-red-200",
+    error: "bg-red-100 text-red-800 border-red-300",
   };
 
   return (

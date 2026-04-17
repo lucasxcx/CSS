@@ -27,7 +27,7 @@ function AdminPage() {
   return (
     <section className="space-y-4 rounded-2xl bg-white p-4 shadow-sm sm:p-6">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-bold text-slate-900">Painel administrativo</h2>
+        <h2 className="text-lg font-bold text-red-900">Painel administrativo</h2>
         <button className="btn-secondary" onClick={loadDeliveries} type="button">
           Atualizar
         </button>
@@ -52,10 +52,10 @@ function AdminPage() {
             key={delivery.id}
           >
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm font-semibold text-slate-900">
+              <p className="text-sm font-semibold text-red-900">
                 Delivery ID: {delivery.delivery_id}
               </p>
-              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+              <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
                 {delivery.status}
               </span>
             </div>

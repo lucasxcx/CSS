@@ -10,7 +10,7 @@ function QrGeneratorPage() {
 
   return (
     <section className="space-y-4 rounded-2xl bg-white p-4 shadow-sm sm:p-6">
-      <h2 className="text-lg font-bold text-slate-900">Gerador de QR Code (teste)</h2>
+      <h2 className="text-lg font-bold text-red-900">Gerador de QR Code (teste)</h2>
       <p className="text-sm text-slate-600">
         Use este QR para simular entregas durante o desenvolvimento.
       </p>
@@ -42,7 +42,7 @@ function QrGeneratorPage() {
 
       <div className="flex flex-col items-center rounded-xl border border-slate-200 p-5">
         <QRCodeCanvas value={qrValue} size={220} />
-        <code className="mt-3 rounded-lg bg-slate-100 px-3 py-1 text-xs text-slate-700">
+        <code className="mt-3 rounded-lg bg-red-50 px-3 py-1 text-xs text-red-700">
           {qrValue}
         </code>
       </div>

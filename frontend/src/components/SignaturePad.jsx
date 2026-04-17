@@ -118,7 +118,7 @@ function SignaturePad({ onChange }) {
     <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-slate-700">Assinatura (opcional)</h3>
-        <button className="text-xs font-semibold text-blue-700" type="button" onClick={clearSignature}>
+        <button className="text-xs font-semibold text-red-700" type="button" onClick={clearSignature}>
           Limpar
         </button>
       </div>

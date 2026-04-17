@@ -204,11 +204,11 @@ function ScanPage() {
 
   return (
     <section className="space-y-4 rounded-2xl bg-white p-4 shadow-sm sm:p-6">
-      <h2 className="text-lg font-bold text-slate-900">Escaneamento de QR Code</h2>
+      <h2 className="text-lg font-bold text-red-900">Escaneamento de QR Code</h2>
       <p className="text-sm text-slate-600">
         Aponte a câmera para o QR Code da entrega. Se preferir, digite o código manualmente.
       </p>
-      <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">
+      <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
         No celular, escaneie um QR exibido em outro dispositivo (não funciona apontar para o QR na mesma tela).
       </p>
 

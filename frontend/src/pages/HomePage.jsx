@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 function HomePage() {
   return (
     <section className="rounded-2xl bg-white p-6 shadow-sm">
-      <h2 className="text-2xl font-bold text-slate-900">Confirmação de Entregas</h2>
+      <h2 className="text-2xl font-bold text-red-900">Confirmação de Entregas</h2>
       <p className="mt-2 text-sm text-slate-600">
         Escaneie o QR Code da encomenda para registrar a confirmação com dados do recebedor.
       </p>

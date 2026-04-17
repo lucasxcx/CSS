@@ -10,8 +10,8 @@ function App() {
     <div className="mx-auto min-h-screen max-w-4xl px-4 py-5 sm:px-6">
       <header className="mb-6 rounded-2xl bg-white p-4 shadow-sm">
         <div className="mb-3 flex items-center justify-between gap-3">
-          <h1 className="text-xl font-bold text-slate-900">Entrega QR</h1>
-          <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+          <h1 className="text-xl font-bold text-red-900">Entrega QR</h1>
+          <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
             Fluxo móvel
           </span>
         </div>
