@@ -50,8 +50,13 @@ function PhotoCapture({ onCapture }) {
       return;
     }
 
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
+    const sourceWidth = video.videoWidth || 640;
+    const sourceHeight = video.videoHeight || 480;
+    const maxWidth = 960;
+    const scale = Math.min(1, maxWidth / sourceWidth);
+
+    canvas.width = Math.floor(sourceWidth * scale);
+    canvas.height = Math.floor(sourceHeight * scale);
 
     const context = canvas.getContext("2d");
     context.drawImage(video, 0, 0, canvas.width, canvas.height);

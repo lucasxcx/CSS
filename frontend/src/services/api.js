@@ -22,22 +22,33 @@ export const confirmDelivery = async (payload) => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000);
   let response;
+  let lastError;
 
-  try {
-    response = await fetch(`${API_BASE_URL}/deliveries/confirm`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-    });
-  } catch (error) {
-    throw new Error(buildNetworkErrorMessage(error));
-  } finally {
-    clearTimeout(timeoutId);
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      response = await fetch(`${API_BASE_URL}/deliveries/confirm`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+      break;
+    } catch (error) {
+      lastError = error;
+      if (attempt === 0) {
+        await new Promise((resolve) => setTimeout(resolve, 800));
+      }
+    }
   }
 
+  if (!response) {
+    clearTimeout(timeoutId);
+    throw new Error(buildNetworkErrorMessage(lastError));
+  }
+
+  clearTimeout(timeoutId);
   return parseResponse(response);
 };
 

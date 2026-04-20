@@ -174,6 +174,20 @@ function ScanPage() {
       }
 
       if (!started) {
+        const availableCameras = await Html5Qrcode.getCameras().catch(() => []);
+        const fallbackCameraId = availableCameras[0]?.id;
+
+        if (fallbackCameraId) {
+          try {
+            await scanner.start(fallbackCameraId, scanConfig, onScanSuccess, onScanError);
+            started = true;
+          } catch (error) {
+            lastError = error;
+          }
+        }
+      }
+
+      if (!started) {
         throw lastError ?? new Error("Não foi possível iniciar a câmera traseira.");
       }
 
