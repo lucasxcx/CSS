@@ -9,9 +9,11 @@ const SCANNER_ELEMENT_ID = "delivery-qr-reader";
 function ScanPage() {
   const navigate = useNavigate();
   const scannerRef = useRef(null);
+  const fileInputRef = useRef(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [manualCode, setManualCode] = useState("");
   const [isStartingCamera, setIsStartingCamera] = useState(false);
+  const [isReadingImage, setIsReadingImage] = useState(false);
   const [isLoadingCameras, setIsLoadingCameras] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [cameras, setCameras] = useState([]);
@@ -215,6 +217,41 @@ function ScanPage() {
     await goToConfirmPage(manualCode);
   };
 
+  const openImagePicker = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    setErrorMessage("");
+    setIsReadingImage(true);
+
+    try {
+      await stopScanner();
+      const imageScanner = new Html5Qrcode(SCANNER_ELEMENT_ID, {
+        verbose: false,
+      });
+      scannerRef.current = imageScanner;
+
+      const decodedText = await imageScanner.scanFile(file, true);
+      await imageScanner.clear();
+      scannerRef.current = null;
+      await goToConfirmPage(decodedText);
+    } catch {
+      setErrorMessage(
+        "Não foi possível ler o QR pela imagem. Tente uma foto mais nítida e com boa iluminação."
+      );
+    } finally {
+      setIsReadingImage(false);
+      event.target.value = "";
+    }
+  };
+
   return (
     <section className="space-y-4 rounded-2xl bg-white p-4 shadow-sm sm:p-6">
       <h2 className="text-lg font-bold text-red-900">Escaneamento de QR Code</h2>
@@ -225,7 +262,7 @@ function ScanPage() {
         No celular, escaneie um QR exibido em outro dispositivo (não funciona apontar para o QR na mesma tela).
       </p>
 
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         <button className="btn-secondary" type="button" onClick={loadCameras} disabled={isLoadingCameras}>
           {isLoadingCameras ? "Buscando câmeras..." : "Atualizar câmeras"}
         </button>
@@ -233,11 +270,27 @@ function ScanPage() {
           className="btn-primary"
           type="button"
           onClick={isScanning ? stopScanner : startScanner}
-          disabled={isStartingCamera}
+          disabled={isStartingCamera || isReadingImage}
         >
           {isStartingCamera ? "Iniciando..." : isScanning ? "Parar leitura" : "Iniciar leitura"}
         </button>
+        <button
+          className="btn-secondary"
+          type="button"
+          onClick={openImagePicker}
+          disabled={isStartingCamera || isReadingImage}
+        >
+          {isReadingImage ? "Lendo imagem..." : "Ler por foto"}
+        </button>
       </div>
+      <input
+        ref={fileInputRef}
+        className="hidden"
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleImageUpload}
+      />
 
       {cameras.length > 0 && (
         <div className="space-y-1">
