@@ -15,7 +15,7 @@ const buildNetworkErrorMessage = (error) => {
     return "Tempo de envio esgotado. Tente novamente.";
   }
 
-  return "Falha de conexão ao enviar. Verifique túneis/backend, sinal de rede e tente novamente.";
+  return `Falha de conexão ao enviar para ${API_BASE_URL}. Verifique túneis/backend, sinal de rede e tente novamente.`;
 };
 
 export const confirmDelivery = async (payload) => {
