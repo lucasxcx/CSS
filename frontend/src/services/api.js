@@ -10,14 +10,33 @@ const parseResponse = async (response) => {
   return data;
 };
 
+const buildNetworkErrorMessage = (error) => {
+  if (error?.name === "AbortError") {
+    return "Tempo de envio esgotado. Tente novamente.";
+  }
+
+  return "Falha de conexão ao enviar. Verifique os túneis/backend e tente novamente.";
+};
+
 export const confirmDelivery = async (payload) => {
-  const response = await fetch(`${API_BASE_URL}/deliveries/confirm`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  let response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}/deliveries/confirm`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    throw new Error(buildNetworkErrorMessage(error));
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   return parseResponse(response);
 };

@@ -79,7 +79,7 @@ function SignaturePad({ onChange }) {
       return;
     }
 
-    const image = canvas.toDataURL("image/png");
+    const image = canvas.toDataURL("image/jpeg", 0.7);
     onChange(image);
     setHasSignature(true);
   };

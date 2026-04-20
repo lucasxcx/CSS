@@ -74,9 +74,15 @@ function ConfirmPage() {
       setSignature(null);
       setPhoto(null);
     } catch (error) {
+      const isNetworkError =
+        error?.name === "TypeError" &&
+        String(error?.message || "").toLowerCase().includes("failed");
+
       setFeedback({
         type: "error",
-        message: error.message || "Falha ao confirmar entrega.",
+        message: isNetworkError
+          ? "Falha de conexão ao enviar confirmação. Verifique se os túneis/backend estão ativos e tente novamente."
+          : error.message || "Falha ao confirmar entrega.",
       });
     } finally {
       setIsSubmitting(false);

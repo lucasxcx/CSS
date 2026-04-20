@@ -56,7 +56,7 @@ function PhotoCapture({ onCapture }) {
     const context = canvas.getContext("2d");
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    const imageAsBase64 = canvas.toDataURL("image/jpeg", 0.9);
+    const imageAsBase64 = canvas.toDataURL("image/jpeg", 0.65);
     setPhotoData(imageAsBase64);
     onCapture(imageAsBase64);
     stopCamera();

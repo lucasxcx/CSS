@@ -9,15 +9,10 @@ const SCANNER_ELEMENT_ID = "delivery-qr-reader";
 function ScanPage() {
   const navigate = useNavigate();
   const scannerRef = useRef(null);
-  const fileInputRef = useRef(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [manualCode, setManualCode] = useState("");
   const [isStartingCamera, setIsStartingCamera] = useState(false);
-  const [isReadingImage, setIsReadingImage] = useState(false);
-  const [isLoadingCameras, setIsLoadingCameras] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
-  const [cameras, setCameras] = useState([]);
-  const [selectedCameraId, setSelectedCameraId] = useState("");
   const [geoStatus, setGeoStatus] = useState("");
 
   const getCurrentLocation = useCallback(
@@ -140,42 +135,11 @@ function ScanPage() {
     return "Não foi possível iniciar a leitura por câmera. Verifique permissões e teste outra câmera.";
   }, []);
 
-  const loadCameras = useCallback(async () => {
-    setErrorMessage("");
-    setIsLoadingCameras(true);
-
-    try {
-      if (!navigator.mediaDevices?.getUserMedia) {
-        throw new Error("Navegador sem suporte a câmera.");
-      }
-
-      const availableCameras = await Html5Qrcode.getCameras();
-      setCameras(availableCameras);
-
-      if (availableCameras.length === 0) {
-        setErrorMessage(
-          "Não foi possível listar as câmeras. Tente clicar em \"Iniciar leitura\" para abrir a câmera diretamente."
-        );
-        return;
-      }
-
-      setSelectedCameraId((currentId) => currentId || availableCameras[0].id);
-    } catch (error) {
-      setErrorMessage(getReadableError(error));
-    } finally {
-      setIsLoadingCameras(false);
-    }
-  }, [getReadableError]);
-
   const startScanner = useCallback(async () => {
     setErrorMessage("");
     setIsStartingCamera(true);
 
     try {
-      const chosenCameraId = selectedCameraId || cameras[0]?.id;
-      const cameraConfig = chosenCameraId
-        ? chosenCameraId
-        : { facingMode: { ideal: "environment" } };
       const qrBoxSize = Math.max(220, Math.min(320, Math.floor(window.innerWidth * 0.72)));
 
       await stopScanner();
@@ -186,15 +150,32 @@ function ScanPage() {
 
       scannerRef.current = scanner;
 
-      await scanner.start(
-        cameraConfig,
-        { fps: 12, qrbox: { width: qrBoxSize, height: qrBoxSize } },
-        async (decodedText) => {
-          await stopScanner();
-          await goToConfirmPage(decodedText);
-        },
-        () => Promise.resolve()
-      );
+      const scanConfig = { fps: 14, qrbox: { width: qrBoxSize, height: qrBoxSize } };
+      const onScanSuccess = async (decodedText) => {
+        await stopScanner();
+        await goToConfirmPage(decodedText);
+      };
+      const onScanError = () => Promise.resolve();
+
+      let started = false;
+      let lastError = null;
+
+      for (const cameraConfig of [
+        { facingMode: { exact: "environment" } },
+        { facingMode: { ideal: "environment" } },
+      ]) {
+        try {
+          await scanner.start(cameraConfig, scanConfig, onScanSuccess, onScanError);
+          started = true;
+          break;
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      if (!started) {
+        throw lastError ?? new Error("Não foi possível iniciar a câmera traseira.");
+      }
 
       setIsScanning(true);
     } catch (error) {
@@ -202,54 +183,17 @@ function ScanPage() {
     } finally {
       setIsStartingCamera(false);
     }
-  }, [cameras, getReadableError, goToConfirmPage, selectedCameraId, stopScanner]);
+  }, [getReadableError, goToConfirmPage, stopScanner]);
 
   useEffect(() => {
-    loadCameras();
-
     return () => {
       void stopScanner();
     };
-  }, [loadCameras, stopScanner]);
+  }, [stopScanner]);
 
   const handleManualSubmit = async (event) => {
     event.preventDefault();
     await goToConfirmPage(manualCode);
-  };
-
-  const openImagePicker = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleImageUpload = async (event) => {
-    const file = event.target.files?.[0];
-
-    if (!file) {
-      return;
-    }
-
-    setErrorMessage("");
-    setIsReadingImage(true);
-
-    try {
-      await stopScanner();
-      const imageScanner = new Html5Qrcode(SCANNER_ELEMENT_ID, {
-        verbose: false,
-      });
-      scannerRef.current = imageScanner;
-
-      const decodedText = await imageScanner.scanFile(file, true);
-      await imageScanner.clear();
-      scannerRef.current = null;
-      await goToConfirmPage(decodedText);
-    } catch {
-      setErrorMessage(
-        "Não foi possível ler o QR pela imagem. Tente uma foto mais nítida e com boa iluminação."
-      );
-    } finally {
-      setIsReadingImage(false);
-      event.target.value = "";
-    }
   };
 
   return (
@@ -262,55 +206,16 @@ function ScanPage() {
         No celular, escaneie um QR exibido em outro dispositivo (não funciona apontar para o QR na mesma tela).
       </p>
 
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-        <button className="btn-secondary" type="button" onClick={loadCameras} disabled={isLoadingCameras}>
-          {isLoadingCameras ? "Buscando câmeras..." : "Atualizar câmeras"}
-        </button>
+      <div className="grid grid-cols-1 gap-2">
         <button
           className="btn-primary"
           type="button"
           onClick={isScanning ? stopScanner : startScanner}
-          disabled={isStartingCamera || isReadingImage}
+          disabled={isStartingCamera}
         >
           {isStartingCamera ? "Iniciando..." : isScanning ? "Parar leitura" : "Iniciar leitura"}
         </button>
-        <button
-          className="btn-secondary"
-          type="button"
-          onClick={openImagePicker}
-          disabled={isStartingCamera || isReadingImage}
-        >
-          {isReadingImage ? "Lendo imagem..." : "Ler por foto"}
-        </button>
       </div>
-      <input
-        ref={fileInputRef}
-        className="hidden"
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={handleImageUpload}
-      />
-
-      {cameras.length > 0 && (
-        <div className="space-y-1">
-          <label className="text-sm font-semibold text-slate-700" htmlFor="camera-select">
-            Câmera
-          </label>
-          <select
-            id="camera-select"
-            className="form-input"
-            value={selectedCameraId}
-            onChange={(event) => setSelectedCameraId(event.target.value)}
-          >
-            {cameras.map((camera, index) => (
-              <option key={camera.id} value={camera.id}>
-                {camera.label || `Câmera ${index + 1}`}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
 
       <div id={SCANNER_ELEMENT_ID} className="overflow-hidden rounded-xl border border-slate-200" />
 
