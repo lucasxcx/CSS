@@ -143,47 +143,43 @@ function ScanPage() {
       const qrBoxSize = Math.max(220, Math.min(320, Math.floor(window.innerWidth * 0.72)));
 
       await stopScanner();
-
-      const scanner = new Html5Qrcode(SCANNER_ELEMENT_ID, {
-        verbose: false,
-      });
-
-      scannerRef.current = scanner;
-
       const scanConfig = { fps: 14, qrbox: { width: qrBoxSize, height: qrBoxSize } };
       const onScanSuccess = async (decodedText) => {
         await stopScanner();
         await goToConfirmPage(decodedText);
       };
-      const onScanError = () => Promise.resolve();
+      const onScanError = () => {};
 
       let started = false;
       let lastError = null;
+      const availableCameras = await Html5Qrcode.getCameras().catch(() => []);
+      const sortedCameraIds = [...availableCameras]
+        .sort((a, b) => {
+          const aScore = /(back|rear|environment|traseira|trás)/i.test(a.label || "") ? 0 : 1;
+          const bScore = /(back|rear|environment|traseira|trás)/i.test(b.label || "") ? 0 : 1;
+          return aScore - bScore;
+        })
+        .map((camera) => camera.id);
 
-      for (const cameraConfig of [
+      const startupAttempts = [
         { facingMode: { exact: "environment" } },
         { facingMode: { ideal: "environment" } },
-      ]) {
+        ...sortedCameraIds,
+        { facingMode: { ideal: "user" } },
+      ];
+
+      for (const cameraConfig of startupAttempts) {
         try {
+          await stopScanner();
+          const scanner = new Html5Qrcode(SCANNER_ELEMENT_ID, {
+            verbose: false,
+          });
+          scannerRef.current = scanner;
           await scanner.start(cameraConfig, scanConfig, onScanSuccess, onScanError);
           started = true;
           break;
         } catch (error) {
           lastError = error;
-        }
-      }
-
-      if (!started) {
-        const availableCameras = await Html5Qrcode.getCameras().catch(() => []);
-        const fallbackCameraId = availableCameras[0]?.id;
-
-        if (fallbackCameraId) {
-          try {
-            await scanner.start(fallbackCameraId, scanConfig, onScanSuccess, onScanError);
-            started = true;
-          } catch (error) {
-            lastError = error;
-          }
         }
       }
 
