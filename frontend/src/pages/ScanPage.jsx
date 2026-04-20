@@ -1,6 +1,6 @@
 import { Html5Qrcode } from "html5-qrcode";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import FeedbackBanner from "../components/FeedbackBanner";
 import { extractDeliveryId } from "../utils/extractDeliveryId";
 
@@ -8,6 +8,7 @@ const SCANNER_ELEMENT_ID = "delivery-qr-reader";
 
 function ScanPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const scannerRef = useRef(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [manualCode, setManualCode] = useState("");
@@ -80,12 +81,12 @@ function ScanPage() {
       );
     }
 
-    navigate(`/confirm/${encodeURIComponent(deliveryId)}`, {
+    navigate(`/confirm/${encodeURIComponent(deliveryId)}${location.search}`, {
       state: {
         scannedLocation: locationPayload,
       },
     });
-  }, [getCurrentLocation, navigate]);
+  }, [getCurrentLocation, location.search, navigate]);
 
   const stopScanner = useCallback(async () => {
     const scanner = scannerRef.current;
