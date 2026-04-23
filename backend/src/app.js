@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const path = require("path");
 const deliveryRoutes = require("./routes/deliveryRoutes");
 
 const app = express();
@@ -12,7 +11,6 @@ app.use(
 );
 app.use(express.json({ limit: "25mb" }));
 app.use(express.urlencoded({ extended: true, limit: "25mb" }));
-app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
 
 app.get("/health", (_request, response) => {
   response.json({ status: "ok" });

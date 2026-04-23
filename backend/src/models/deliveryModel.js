@@ -18,7 +18,7 @@ const createTable = async () => {
       documento TEXT NOT NULL,
       observacoes TEXT,
       assinatura TEXT,
-      foto TEXT NOT NULL,
+      foto TEXT NOT NULL DEFAULT '',
       scan_latitude REAL,
       scan_longitude REAL,
       scan_accuracy REAL,

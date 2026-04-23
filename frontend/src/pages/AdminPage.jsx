@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import FeedbackBanner from "../components/FeedbackBanner";
-import { fetchDeliveries, getApiBaseUrl } from "../services/api";
+import { fetchDeliveries } from "../services/api";
 
 function AdminPage() {
   const [deliveries, setDeliveries] = useState([]);
@@ -80,12 +80,10 @@ function AdminPage() {
                 {new Date(delivery.created_at).toLocaleString("pt-BR")}
               </p>
             </div>
-            {delivery.foto && (
-              <img
-                alt={`Foto da entrega ${delivery.delivery_id}`}
-                className="mt-3 max-h-48 w-full rounded-xl border border-slate-200 object-cover"
-                src={`${getApiBaseUrl()}${delivery.foto}`}
-              />
+            {delivery.scan_accuracy !== null && (
+              <p className="mt-3 text-xs text-slate-500">
+                <strong>Precisão aproximada:</strong> {Math.round(Number(delivery.scan_accuracy))} m
+              </p>
             )}
           </article>
         ))}

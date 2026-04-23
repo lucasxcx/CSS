@@ -3,7 +3,7 @@
 Aplicação React responsável por:
 
 - escanear QR Code com câmera
-- coletar dados de confirmação (formulário, foto e assinatura)
+- coletar dados de confirmação (formulário + geolocalização do escaneamento)
 - listar entregas em uma página administrativa
 - gerar QR Codes de teste
 

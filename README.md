@@ -18,9 +18,7 @@ backend/
     models/        # consultas SQL
     routes/        # rotas da API
     services/      # regras de negócio
-    utils/         # helpers (ex.: salvar base64 em arquivo)
   data/            # banco SQLite (runtime)
-  uploads/         # fotos capturadas (runtime)
 
 frontend/
   src/
@@ -39,11 +37,9 @@ frontend/
   - nome do recebedor
   - documento
   - observações
-  - assinatura (canvas, opcional)
-  - foto da entrega (câmera)
 - Confirmação da entrega via `POST /deliveries/confirm`
 - Persistência no SQLite e status como `concluido`
-- Captura de geolocalização no momento do escaneamento (latitude/longitude)
+- Captura de geolocalização no momento do escaneamento (latitude/longitude), obrigatória para confirmar
 - Painel administrativo para listagem (`GET /deliveries`)
 - Gerador de QR de exemplo para testes
 - Validações de campos obrigatórios
@@ -97,5 +93,5 @@ Aplicação padrão em: `http://localhost:5173`
 2. Gere um `delivery_id` (ex.: `PED-1001`)
 3. Vá em **Escanear**
 4. Escaneie o QR
-5. Preencha formulário + foto e confirme
+5. Preencha formulário e confirme (com geolocalização do scan)
 6. Abra o painel **Administrativo** para visualizar o registro salvo

@@ -1,8 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import FeedbackBanner from "../components/FeedbackBanner";
-import PhotoCapture from "../components/PhotoCapture";
-import SignaturePad from "../components/SignaturePad";
 import { confirmDelivery } from "../services/api";
 
 function ConfirmPage() {
@@ -26,8 +24,6 @@ function ConfirmPage() {
     documento: "",
     observacoes: "",
   });
-  const [signature, setSignature] = useState(null);
-  const [photo, setPhoto] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState({ type: "info", message: "" });
 
@@ -43,10 +39,18 @@ function ConfirmPage() {
     event.preventDefault();
     setFeedback({ type: "info", message: "" });
 
-    if (!formValues.nomeRecebedor || !formValues.documento || !photo) {
+    if (!formValues.nomeRecebedor || !formValues.documento) {
       setFeedback({
         type: "error",
-        message: "Preencha nome, documento e foto da entrega.",
+        message: "Preencha nome e documento do recebedor.",
+      });
+      return;
+    }
+
+    if (!scannedLocation) {
+      setFeedback({
+        type: "error",
+        message: "Geolocalização obrigatória. Retorne ao scan e permita o acesso à localização.",
       });
       return;
     }
@@ -58,8 +62,6 @@ function ConfirmPage() {
         nome_recebedor: formValues.nomeRecebedor,
         documento: formValues.documento,
         observacoes: formValues.observacoes,
-        assinatura: signature,
-        foto: photo,
         scan_latitude: scannedLocation?.latitude ?? null,
         scan_longitude: scannedLocation?.longitude ?? null,
         scan_accuracy: scannedLocation?.accuracy ?? null,
@@ -71,8 +73,6 @@ function ConfirmPage() {
         message: "Entrega confirmada com sucesso.",
       });
       setFormValues({ nomeRecebedor: "", documento: "", observacoes: "" });
-      setSignature(null);
-      setPhoto(null);
     } catch (error) {
       const isNetworkError =
         error?.name === "TypeError" &&
@@ -100,13 +100,26 @@ function ConfirmPage() {
             {scannedLocation.longitude.toFixed(6)}
           </p>
         ) : (
-          <p className="mt-2 text-xs text-red-700">
-            Escaneamento sem geolocalização (permissão negada ou indisponível).
+          <p className="mt-2 text-xs font-semibold text-red-700">
+            Escaneamento sem geolocalização. Retorne ao scan e permita localização para confirmar.
           </p>
         )}
       </div>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
+        <div className="space-y-1">
+          <label className="text-sm font-semibold text-slate-700" htmlFor="deliveryId">
+            Número do pedido
+          </label>
+          <input
+            className="form-input bg-slate-100 text-slate-600"
+            id="deliveryId"
+            name="deliveryId"
+            readOnly
+            value={resolvedDeliveryId}
+          />
+        </div>
+
         <div className="space-y-1">
           <label className="text-sm font-semibold text-slate-700" htmlFor="nomeRecebedor">
             Nome do recebedor *
@@ -149,12 +162,9 @@ function ConfirmPage() {
           />
         </div>
 
-        <PhotoCapture onCapture={setPhoto} />
-        <SignaturePad onChange={setSignature} />
-
         <FeedbackBanner type={feedback.type} message={feedback.message} />
 
-        <button className="btn-primary w-full" type="submit" disabled={isSubmitting}>
+        <button className="btn-primary w-full" type="submit" disabled={isSubmitting || !scannedLocation}>
           {isSubmitting ? "Confirmando..." : "Confirmar Entrega"}
         </button>
       </form>
