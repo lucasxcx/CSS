@@ -5,7 +5,10 @@ import { confirmDelivery } from "../services/api";
 
 function ConfirmPage() {
   const { deliveryId } = useParams();
-  const resolvedDeliveryId = useMemo(() => decodeURIComponent(deliveryId || ""), [deliveryId]);
+  const resolvedDeliveryId = useMemo(
+    () => decodeURIComponent(deliveryId || "").replace(/undefined+$/i, "").trim(),
+    [deliveryId]
+  );
   const scannedLocation = useMemo(() => {
     const storedValue = sessionStorage.getItem(`scan_location:${resolvedDeliveryId}`);
 

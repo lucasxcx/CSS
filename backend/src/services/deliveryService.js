@@ -44,8 +44,27 @@ const validatePayload = (payload) => {
   return { valid: true };
 };
 
+const normalizeDeliveryId = (value) => {
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  return trimmed.replace(/undefined$/i, "").trim();
+};
+
 const confirmDelivery = async (payload) => {
-  const validation = validatePayload(payload);
+  const normalizedDeliveryId = normalizeDeliveryId(payload.delivery_id);
+  const safePayload = {
+    ...payload,
+    delivery_id: normalizedDeliveryId,
+  };
+
+  const validation = validatePayload(safePayload);
 
   if (!validation.valid) {
     const error = new Error(validation.message);
@@ -54,7 +73,7 @@ const confirmDelivery = async (payload) => {
   }
 
   const confirmedDelivery = await deliveryModel.confirmDelivery({
-    delivery_id: payload.delivery_id.trim(),
+    delivery_id: normalizedDeliveryId,
     nome_recebedor: payload.nome_recebedor.trim(),
     documento: payload.documento.trim(),
     observacoes: payload.observacoes?.trim() ?? "",
