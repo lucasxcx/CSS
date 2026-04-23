@@ -5,10 +5,12 @@ import FeedbackBanner from "../components/FeedbackBanner";
 import { extractDeliveryId } from "../utils/extractDeliveryId";
 
 const SCANNER_ELEMENT_ID = "delivery-qr-reader";
+const PRIMARY_GEO_OPTIONS = { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 };
+const FALLBACK_GEO_OPTIONS = { enableHighAccuracy: false, timeout: 12000, maximumAge: 120000 };
 
 function ScanPage() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const routeLocation = useLocation();
   const scannerRef = useRef(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [manualCode, setManualCode] = useState("");
@@ -16,44 +18,54 @@ function ScanPage() {
   const [isScanning, setIsScanning] = useState(false);
   const [geoStatus, setGeoStatus] = useState("");
 
-  const getCurrentLocation = useCallback(
-    () =>
-      new Promise((resolve) => {
-        if (!navigator.geolocation) {
-          setGeoStatus("Geolocalização não suportada neste dispositivo.");
-          resolve(null);
-          return;
-        }
-
-        setGeoStatus("Capturando geolocalização...");
-
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            resolve({
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-              accuracy: position.coords.accuracy,
-            });
-          },
-          (error) => {
-            if (error?.code === 1) {
-              setGeoStatus("Permissão de localização negada.");
-            } else if (error?.code === 3) {
-              setGeoStatus("Tempo de localização esgotado. Continuando sem coordenadas.");
-            } else {
-              setGeoStatus("Não foi possível obter localização. Continuando sem coordenadas.");
-            }
-            resolve(null);
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: 8000,
-            maximumAge: 0,
-          }
-        );
+  const readCurrentPosition = useCallback(
+    (options) =>
+      new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, options);
       }),
     []
   );
+
+  const getCurrentLocation = useCallback(async () => {
+    if (!navigator.geolocation) {
+      setGeoStatus("Geolocalização não suportada neste dispositivo.");
+      return null;
+    }
+
+    setGeoStatus("Capturando geolocalização...");
+
+    try {
+      const position = await readCurrentPosition(PRIMARY_GEO_OPTIONS);
+      return {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        accuracy: position.coords.accuracy,
+      };
+    } catch (error) {
+      if (error?.code === 1) {
+        setGeoStatus("Permissão de localização negada.");
+        return null;
+      }
+
+      if (error?.code === 3) {
+        setGeoStatus("Sinal de GPS fraco. Tentando localização aproximada...");
+      } else {
+        setGeoStatus("Falha no GPS de alta precisão. Tentando localização aproximada...");
+      }
+    }
+
+    try {
+      const fallbackPosition = await readCurrentPosition(FALLBACK_GEO_OPTIONS);
+      return {
+        latitude: fallbackPosition.coords.latitude,
+        longitude: fallbackPosition.coords.longitude,
+        accuracy: fallbackPosition.coords.accuracy,
+      };
+    } catch {
+      setGeoStatus("Não foi possível obter localização. Continuando sem coordenadas.");
+      return null;
+    }
+  }, [readCurrentPosition]);
 
   const goToConfirmPage = useCallback(async (rawValue) => {
     const deliveryId = extractDeliveryId(rawValue);
@@ -63,13 +75,13 @@ function ScanPage() {
       return;
     }
 
-    const location = await getCurrentLocation();
-    const locationPayload = location
+    const capturedLocation = await getCurrentLocation();
+    const locationPayload = capturedLocation
       ? {
-          latitude: location.latitude,
-          longitude: location.longitude,
-          accuracy: location.accuracy ?? null,
-          capturedAt: new Date().toISOString(),
+          latitude: capturedLocation.latitude,
+          longitude: capturedLocation.longitude,
+          accuracy: capturedLocation.accuracy ?? null,
+          geolocatedAt: new Date().toISOString(),
         }
       : null;
 
@@ -81,12 +93,12 @@ function ScanPage() {
       );
     }
 
-    navigate(`/confirm/${encodeURIComponent(deliveryId)}${location.search}`, {
+    navigate(`/confirm/${encodeURIComponent(deliveryId)}${routeLocation.search}`, {
       state: {
         scannedLocation: locationPayload,
       },
     });
-  }, [getCurrentLocation, location.search, navigate]);
+  }, [getCurrentLocation, navigate, routeLocation.search]);
 
   const stopScanner = useCallback(async () => {
     const scanner = scannerRef.current;
